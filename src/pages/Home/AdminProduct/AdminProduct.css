@@ -1,0 +1,12 @@
+.container {
+    max-width: 500px;
+}
+
+.card {
+    max-width: 550px;
+    margin: auto;
+}
+
+h3 {
+    margin: 30px 0;
+}
