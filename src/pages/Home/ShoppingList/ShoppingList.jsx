@@ -1,47 +1,33 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './ShoppingList.css'
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import Swal from 'sweetalert2'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
-
-
-const PRODUCTS = [
-    {
-        id: 1, 
-        index: 1,
-        name: 'Leche lala',
-        amount: 10
-    },
-    {
-        id: 2, 
-        index: 2, 
-        name: 'Coca Cola',
-        amount: 2
-    },
-    {
-        id: 3, 
-        index: 3,
-        name: 'Huevos',
-        amount: 1
-    },
-    {
-        id: 4, 
-        index: 4,
-        name: 'Sabritas',
-        amount: 4
-    },
-    {
-        id: 5, 
-        index: 5,
-        name: 'Cerveza',
-        amount: 6
-    },
-]
+import shoppingListService from '../../../services/shopping-list.service';
 
 
 const ShoppingList = () => {
 
-    const [products, setProducts] = useState(PRODUCTS)
+    const [products, setProducts] = useState([])
+
+    useEffect(() => {
+        const fetchData = async () => {
+          shoppingListService.getAll().then( resp => {
+            if (resp.data.shoppingLists) {
+                setProducts( resp.data.shoppingLists.map( item => ({
+                    id: item.id,
+                    index: item.index, 
+                    product: item.product, 
+                    amount: item.amount
+                }) ) )
+            }
+            return resp
+          } );
+
+        }
+    
+        fetchData()
+      }, []);
 
     const reorganizeProducts = (sourceIndex, destinationIndex) => {
         const item = products[sourceIndex]
@@ -49,6 +35,10 @@ const ShoppingList = () => {
         arrayAux.splice(sourceIndex, 1)
         arrayAux.splice(destinationIndex, 0, item)
         arrayAux = arrayAux.map( (item, index) => ({ ...item, index: (index+1) }) )
+        console.log(arrayAux);
+        shoppingListService.updateList(arrayAux).then( result => {
+            console.log(result)
+        } )
         setProducts(arrayAux)
     }
 
@@ -64,11 +54,18 @@ const ShoppingList = () => {
             confirmButtonText: 'Aceptar'
           }).then((result) => {
             if (result.isConfirmed) {
-              Swal.fire(
-                'Deleted!',
-                'Your file has been deleted.',
-                'success'
-              )
+              shoppingListService.deleteList(id).then( result => {
+                  if (result.data.deleteShoppingList) {
+                    Swal.fire(
+                        '¡Producto eliminado!',
+                        '¡La operación se realizo exitosamente!',
+                        'success'
+                    )
+                    setProducts(
+                        products.filter( item => item.id !== id )
+                    )
+                  }
+              } )
             }
         })
     }
@@ -131,7 +128,7 @@ const ShoppingList = () => {
                                                                         { product.amount }
                                                                     </div>
                                                                     <div className="col-3">
-                                                                        { product.name }
+                                                                        { product.product }
                                                                     </div>
                                                                     <div className="col-3">
                                                                         <Link to={ `/home/admin-product/${product.id}` }>
@@ -167,4 +164,4 @@ const ShoppingList = () => {
     )
 }
 
-export default ShoppingList
+export default withRouter(ShoppingList)

@@ -1,8 +1,14 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import authorizationService from '../../../services/authorization.service'
 import './Sidebar.css'
 
+
 const Sidebar = () => {
+
+    useEffect( () => {
+
+    }, [] )
 
     return (
         <>
@@ -30,7 +36,7 @@ const Sidebar = () => {
                         </Link>
                     </li>
                     <li>
-                        <Link to="/login" className="article">
+                        <Link onClick={ () => authorizationService.logout() } to="/login" className="article">
                             <i className="fas fa-sign-out-alt"></i>
                             &nbsp;
                             Cerrar Sesión

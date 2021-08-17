@@ -1,0 +1,8 @@
+.settings-image {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 5px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
